@@ -28,10 +28,10 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        "simple-import-sort/imports": "error",
-        "import/first": "error",
-        "import/newline-after-import": ["error", { "count": 1 }],
-        "import/no-duplicates": "error",
+        'simple-import-sort/imports': "error",
+        'import/first': "error",
+        'import/newline-after-import': ['error', { 'count': 1 }],
+        'import/no-duplicates': 'error',
         'no-console': 'warn',
         'sort-imports': ['error', {
             'ignoreCase': true,
@@ -40,6 +40,13 @@ module.exports = {
             'memberSyntaxSortOrder': ['none', 'all', 'multiple', 'single'],
             'allowSeparatedGroups': false
         }],
+        'prettier/prettier': [
+            'warn',
+            {
+                singleQuote: true,
+                semi: true,
+            }
+        ],
     },
     ignorePatterns: ['.eslintrc.js']
 };
