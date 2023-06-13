@@ -24,7 +24,7 @@ class UserController {
     next: NextFunction
   ): Promise<Response<IUser>> {
     try {
-      const newUser = await userService.create(req.res.locals as IUser);
+      const newUser = await userService.create(req.body);
 
       return res.status(201).json(newUser);
     } catch (e) {
@@ -56,7 +56,7 @@ class UserController {
     try {
       const { userId } = req.params;
 
-      const updateUser = userService.update(userId, req.res.locals as IUser);
+      const updateUser = await userService.update(userId, req.body);
 
       return res.status(200).json(updateUser);
     } catch (e) {
