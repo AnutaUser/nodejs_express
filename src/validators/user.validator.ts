@@ -37,4 +37,9 @@ export class UserValidator {
     gender: this.gender,
     photo: this.photo,
   });
+
+  static login = Joi.object({
+    email: this.email.required(),
+    password: this.password.required(),
+  });
 }
