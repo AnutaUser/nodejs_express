@@ -11,14 +11,6 @@ class UserService {
     }
   }
 
-  public async create(data: IUser): Promise<IUser> {
-    try {
-      return await User.create(data);
-    } catch (e) {
-      throw new ApiError(e.message, e.status);
-    }
-  }
-
   public async getByUserId(userId: string): Promise<IUser> {
     return await this.getByIdOrThrow(userId);
   }

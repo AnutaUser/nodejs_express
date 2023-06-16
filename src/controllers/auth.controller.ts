@@ -25,7 +25,6 @@ class AuthController {
   ): Promise<Response<ITokensPair>> {
     try {
       const tokensPair = await authService.login(req.body, req.res.locals.user);
-
       return res.status(201).json(tokensPair);
     } catch (e) {
       next(new ApiError(e.message, e.status));

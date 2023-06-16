@@ -18,20 +18,6 @@ class UserController {
     }
   }
 
-  public async create(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<IUser>> {
-    try {
-      const newUser = await userService.create(req.body);
-
-      return res.status(201).json(newUser);
-    } catch (e) {
-      next(new ApiError(e.message, e.status));
-    }
-  }
-
   public async getByUserId(
     req: Request,
     res: Response,

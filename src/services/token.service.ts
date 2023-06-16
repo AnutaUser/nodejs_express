@@ -1,6 +1,7 @@
 import * as jwt from 'jsonwebtoken';
 
 import { configs } from '../configs';
+import { ApiError } from '../errors';
 import { ITokenPayload, ITokensPair } from '../types';
 
 class TokenService {
@@ -17,6 +18,14 @@ class TokenService {
       accessToken,
       refreshToken,
     };
+  }
+
+  public checkToken(token: string): ITokenPayload {
+    try {
+      return jwt.verify(token, configs.JWT_ACCESS_SECRET) as ITokenPayload;
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
   }
 }
 
