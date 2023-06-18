@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { ApiError } from '../errors';
-import { authService } from '../services';
+import { authService, tokenService } from '../services';
 import { ITokensPair } from '../types';
 
 class AuthController {
@@ -26,6 +26,38 @@ class AuthController {
     try {
       const tokensPair = await authService.login(req.body, req.res.locals.user);
       return res.status(201).json(tokensPair);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async sendActivateToken(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const activateToken = await tokenService.generateActivateToken({
+        _id: req.body._id,
+        username: req.body.username,
+      });
+      return res.status(201).json(activateToken);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async activate(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const activateToken = await tokenService.generateActivateToken({
+        _id: req.body._id,
+        username: req.body.username,
+      });
+      return res.status(201).json(activateToken);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }

@@ -19,5 +19,7 @@ router.post(
   userMiddleware.isUserExist<ICredentials>('email'),
   authController.login
 );
+router.post('/activate', authController.sendActivateToken);
+router.post('/activate/:token', authController.activate);
 
 export const authRouter = router;

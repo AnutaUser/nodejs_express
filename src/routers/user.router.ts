@@ -24,7 +24,7 @@ router.put(
 router.delete(
   '/:userId',
   commonMiddleware.isIdValid('userId'),
-  authMiddleware.checkAccessToken,
+  // authMiddleware.checkAccessToken,
   userController.deleteByUserId
 );
 

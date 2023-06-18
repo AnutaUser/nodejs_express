@@ -2,7 +2,7 @@ import * as jwt from 'jsonwebtoken';
 
 import { configs } from '../configs';
 import { ApiError } from '../errors';
-import { ITokenPayload, ITokensPair } from '../types';
+import { IActivateToken, ITokenPayload, ITokensPair } from '../types';
 
 class TokenService {
   public generateTokensPare(payload: ITokenPayload): ITokensPair {
@@ -18,6 +18,11 @@ class TokenService {
       accessToken,
       refreshToken,
     };
+  }
+
+  public generateActivateToken(payload: ITokenPayload): IActivateToken {
+    const activateToken = jwt.sign(payload, configs.JWT_ACTIVATE_SECRET);
+    return { activateToken };
   }
 
   public checkToken(token: string): ITokenPayload {

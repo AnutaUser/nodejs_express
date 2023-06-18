@@ -1,6 +1,8 @@
+import { EEmailActions } from '../enums';
 import { ApiError } from '../errors';
 import { Token, User } from '../models';
 import { ICredentials, ITokensPair, IUser } from '../types';
+import { emailService } from './email.service';
 import { passwordService } from './password.service';
 import { tokenService } from './token.service';
 
@@ -9,7 +11,13 @@ class AuthService {
     try {
       const hashPass = await passwordService.hash(body.password);
 
-      await User.create({ ...body, password: hashPass });
+      await Promise.all([
+        User.create({ ...body, password: hashPass }),
+        emailService.sendMail(body.email, EEmailActions.REGISTER, {
+          username: body.username,
+          url: 'http://localhost:5555/auth/activate',
+        }),
+      ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);
     }

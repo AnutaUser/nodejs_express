@@ -13,4 +13,9 @@ export const configs = {
     process.env.JWT_REFRESH_SECRET || 'very_secret_refresh_key',
   JWT_ACCESS_EXPIRES_IN: process.env.JWT_ACCESS_EXPIRES_IN || '3m',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '1d',
+  JWT_ACTIVATE_SECRET:
+    process.env.JWT_ACTIVATE_SECRET || 'very_secret_activate_key',
+
+  NODEMAILER_USER: process.env.NODEMAILER_USER || '',
+  NODEMAILER_PASS: process.env.NODEMAILER_PASS || '',
 };
