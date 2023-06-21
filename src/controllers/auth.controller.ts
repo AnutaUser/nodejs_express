@@ -31,6 +31,40 @@ class AuthController {
     }
   }
 
+  public async changePassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { _id } = req.res.locals.tokenInfo;
+      const { oldPassword, newPassword } = req.body;
+
+      await authService.changePassword(oldPassword, newPassword, _id);
+
+      return res.sendStatus(201);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async refresh(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<ITokensPair>> {
+    try {
+      const tokensPair = await authService.refresh(
+        req.res.locals.oldTokensPair,
+        req.res.locals.tokenPayload
+      );
+
+      return res.status(201).json(tokensPair);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
   public async sendActivateToken(
     req: Request,
     res: Response,
