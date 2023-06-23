@@ -64,23 +64,23 @@ class AuthMiddleware {
   public checkActionToken(tokenType: EActionTokenType) {
     return async (req: Request, res: Response, next: NextFunction) => {
       try {
-        const forgotPassToken = req.params.forgotPassToken;
+        const actionToken = req.params.token;
 
-        if (!forgotPassToken) {
-          throw new ApiError('Token is not provided', 400);
+        if (!actionToken) {
+          throw new ApiError('Token is not provided1', 400);
         }
 
         const jwtPayload = await tokenService.checkToken(
-          forgotPassToken,
+          actionToken,
           tokenType
         );
 
         const tokenFromDB = await Action.findOne({
-          actionToken: forgotPassToken,
+          actionToken: actionToken,
         });
 
         if (!tokenFromDB) {
-          throw new ApiError('Token is not provided', 400);
+          throw new ApiError('Token is not provided2', 400);
         }
 
         req.res.locals = {

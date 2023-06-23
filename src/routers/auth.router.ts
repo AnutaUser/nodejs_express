@@ -20,6 +20,12 @@ router.post(
 );
 
 router.post(
+  '/register/:token',
+  authMiddleware.checkActionToken(EActionTokenType.Activate),
+  authController.activate
+);
+
+router.post(
   '/login',
   commonMiddleware.isBodyValid(UserValidator.login),
   userMiddleware.isUserExist<ICredentials>('email'),
@@ -41,7 +47,7 @@ router.post(
 );
 
 router.post(
-  '/forgotPassword/:forgotPassToken',
+  '/forgotPassword/:token',
   commonMiddleware.isBodyValid(UserValidator.setForgotPassword),
   authMiddleware.checkActionToken(EActionTokenType.Forgot),
   authController.setForgotPassword
@@ -52,9 +58,5 @@ router.post(
   authMiddleware.checkRefreshToken,
   authController.refresh
 );
-
-router.post('/activate', authController.sendActivateToken);
-
-router.post('/activate/:token', authController.activate);
 
 export const authRouter = router;

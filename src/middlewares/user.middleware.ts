@@ -15,7 +15,7 @@ class UserMiddleware {
         }
         next();
       } catch (e) {
-        throw new ApiError('User not found', 422);
+        throw new ApiError('User already exist', 422);
       }
     };
   }

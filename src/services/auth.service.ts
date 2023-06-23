@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-import { EActionTokenType, EEmailActions } from '../enums';
+import { EActionTokenType, EEmailActions, EStatus } from '../enums';
 import { ApiError } from '../errors';
 import { Action, OldPassword, Token, User } from '../models';
 import { ICredentials, ITokenPayload, ITokensPair, IUser } from '../types';
@@ -13,12 +13,39 @@ class AuthService {
     try {
       const hashPass = await passwordService.hash(body.password);
 
+      const user = await User.create({ ...body, password: hashPass });
+
+      const activateToken = await tokenService.generateActionToken(
+        { _id: user._id },
+        EActionTokenType.Activate
+      );
+
       await Promise.all([
-        User.create({ ...body, password: hashPass }),
+        Action.create({
+          actionToken: activateToken,
+          tokenType: EActionTokenType.Activate,
+          _user: user._id,
+        }),
         emailService.sendMail(body.email, EEmailActions.REGISTER, {
           username: body.username,
-          url: 'http://localhost:5555/auth/activate',
+          activateToken,
         }),
+      ]);
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async activate(
+    activateToken: string,
+    jwtPayload: ITokenPayload
+  ): Promise<void> {
+    try {
+      const { _id } = jwtPayload;
+
+      await Promise.all([
+        User.findByIdAndUpdate({ _id }, { status: EStatus.active }),
+        Action.deleteMany({ _user: _id, tokenType: EActionTokenType.Activate }),
       ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);
@@ -139,15 +166,17 @@ class AuthService {
 
   public async setForgotPassword(
     password: string,
-    userId: Types.ObjectId,
-    actionToken: string
+    userId: Types.ObjectId
   ): Promise<void> {
     try {
       const hash = await passwordService.hash(password);
 
       await Promise.all([
         User.findByIdAndUpdate(userId, { password: hash }),
-        Action.deleteOne({ actionToken }),
+        Action.deleteMany({
+          _user: userId,
+          tokenType: EActionTokenType.Forgot,
+        }),
       ]);
     } catch (e) {
       throw new ApiError(e.message, e.status);

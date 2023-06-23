@@ -1,8 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { EActionTokenType } from '../enums';
 import { ApiError } from '../errors';
-import { authService, tokenService } from '../services';
+import { authService } from '../services';
 import { ITokensPair } from '../types';
 
 class AuthController {
@@ -91,32 +90,9 @@ class AuthController {
     try {
       const { password } = req.body;
       const { tokenFromDB } = req.res.locals;
-      await authService.setForgotPassword(
-        password,
-        tokenFromDB._user,
-        req.params.forgotPassToken
-      );
+      await authService.setForgotPassword(password, tokenFromDB._user);
 
       return res.sendStatus(200);
-    } catch (e) {
-      next(new ApiError(e.message, e.status));
-    }
-  }
-
-  public async sendActivateToken(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<Response<void>> {
-    try {
-      const activateToken = await tokenService.generateActionToken(
-        {
-          _id: req.body._id,
-          username: req.body.username,
-        },
-        EActionTokenType.Activate
-      );
-      return res.status(201).json(activateToken);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
@@ -128,14 +104,12 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const activateToken = await tokenService.generateActionToken(
-        {
-          _id: req.body._id,
-          username: req.body.username,
-        },
-        EActionTokenType.Activate
-      );
-      return res.status(201).json(activateToken);
+      const { jwtPayload } = req.res.locals;
+      const { token } = req.params;
+
+      await authService.activate(token, jwtPayload);
+
+      return res.sendStatus(201);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
