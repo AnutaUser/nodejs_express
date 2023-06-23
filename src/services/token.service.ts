@@ -1,9 +1,9 @@
 import * as jwt from 'jsonwebtoken';
 
 import { configs } from '../configs';
-import { ETokenType } from '../enums';
+import { EActionTokenType, ETokenType } from '../enums';
 import { ApiError } from '../errors';
-import { IActivateToken, ITokenPayload, ITokensPair } from '../types';
+import { ITokenPayload, ITokensPair } from '../types';
 
 class TokenService {
   public generateTokensPare(payload: ITokenPayload): ITokensPair {
@@ -21,12 +21,34 @@ class TokenService {
     };
   }
 
-  public generateActivateToken(payload: ITokenPayload): IActivateToken {
-    const activateToken = jwt.sign(payload, configs.JWT_ACTIVATE_SECRET);
-    return { activateToken };
+  public generateActionToken(
+    payload: ITokenPayload,
+    tokenType: EActionTokenType
+  ): string {
+    try {
+      let secret: string;
+      let expiresIn: string;
+
+      switch (tokenType) {
+        case EActionTokenType.Activate:
+          secret = configs.JWT_ACTIVATE_SECRET;
+          expiresIn = configs.JWT_ACTIVATE_EXPIRES_IN;
+          break;
+        case EActionTokenType.Forgot:
+          secret = configs.JWT_FORGOT_SECRET;
+          expiresIn = configs.JWT_FORGOT_EXPIRES_IN;
+      }
+
+      return jwt.sign(payload, secret, { expiresIn });
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
   }
 
-  public checkToken(token: string, tokenType: ETokenType): ITokenPayload {
+  public checkToken(
+    token: string,
+    tokenType: ETokenType | EActionTokenType
+  ): ITokenPayload {
     try {
       let secret: string;
 
@@ -37,8 +59,11 @@ class TokenService {
         case ETokenType.Refresh:
           secret = configs.JWT_REFRESH_SECRET;
           break;
-        case ETokenType.Activate:
+        case EActionTokenType.Activate:
           secret = configs.JWT_ACTIVATE_SECRET;
+          break;
+        case EActionTokenType.Forgot:
+          secret = configs.JWT_FORGOT_SECRET;
           break;
       }
 

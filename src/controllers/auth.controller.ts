@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
+import { EActionTokenType } from '../enums';
 import { ApiError } from '../errors';
 import { authService, tokenService } from '../services';
 import { ITokensPair } from '../types';
@@ -65,16 +66,56 @@ class AuthController {
     }
   }
 
+  public async forgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { user } = req.res.locals;
+      const { email } = req.body;
+
+      await authService.forgotPassword(user._id, email);
+
+      return res.sendStatus(200);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async setForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<void>> {
+    try {
+      const { password } = req.body;
+      const { tokenFromDB } = req.res.locals;
+      await authService.setForgotPassword(
+        password,
+        tokenFromDB._user,
+        req.params.forgotPassToken
+      );
+
+      return res.sendStatus(200);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
   public async sendActivateToken(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const activateToken = await tokenService.generateActivateToken({
-        _id: req.body._id,
-        username: req.body.username,
-      });
+      const activateToken = await tokenService.generateActionToken(
+        {
+          _id: req.body._id,
+          username: req.body.username,
+        },
+        EActionTokenType.Activate
+      );
       return res.status(201).json(activateToken);
     } catch (e) {
       next(new ApiError(e.message, e.status));
@@ -87,10 +128,13 @@ class AuthController {
     next: NextFunction
   ): Promise<Response<void>> {
     try {
-      const activateToken = await tokenService.generateActivateToken({
-        _id: req.body._id,
-        username: req.body.username,
-      });
+      const activateToken = await tokenService.generateActionToken(
+        {
+          _id: req.body._id,
+          username: req.body.username,
+        },
+        EActionTokenType.Activate
+      );
       return res.status(201).json(activateToken);
     } catch (e) {
       next(new ApiError(e.message, e.status));
