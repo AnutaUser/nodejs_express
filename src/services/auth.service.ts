@@ -106,27 +106,21 @@ class AuthService {
     _id: string
   ): Promise<void> {
     try {
-      const userOldPass = await OldPassword.find({ _user: _id });
+      const [userOldPass, user] = await Promise.all([
+        OldPassword.find({ _user: _id }),
+        User.findById(_id),
+      ]);
+
+      const passwords = [...userOldPass, { password: user.password }];
 
       await Promise.all(
-        userOldPass.map(async ({ password: hash }) => {
+        passwords.map(async ({ password: hash }) => {
           const isMatched = await passwordService.compare(newPassword, hash);
           if (isMatched) {
             throw new ApiError('Wrong new password', 400);
           }
         })
       );
-
-      const user = await User.findById(_id);
-
-      const isMatched = await passwordService.compare(
-        oldPassword,
-        user.password
-      );
-
-      if (!isMatched) {
-        throw new ApiError('Wrong old passport', 400);
-      }
 
       const newPassHash = await passwordService.hash(newPassword);
 

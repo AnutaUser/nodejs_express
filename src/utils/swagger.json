@@ -1,0 +1,571 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "My application",
+    "version": "1.0.0",
+    "title": "API",
+    "contact": {
+      "name": "Anna Bezkorovaina",
+      "email": "bezkorovainaanna048@gmail.com"
+    }
+  },
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": ["users"],
+        "description": "Get users list",
+        "summary": "get all users",
+        "responses": {
+          "200": {
+            "description": "Get all users",
+            "schema": {
+              "type": "array",
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": ["users"],
+        "description": "Get user by user id",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Access token",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "get by ID",
+            "schema": {
+              "$ref": "#/definitions/User",
+              "type": "object"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["users"],
+        "description": "Update user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Access token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UserForUpdate"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Update user data"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["users"],
+        "description": "Remove user",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "User ID",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Access token",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "204": {
+            "description": "Deletion successful"
+          }
+        }
+      }
+    },
+
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Create new User",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserForCreate"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Register new User",
+            "schema": {
+              "type": "object",
+              "$ref": "#/definitions/UserForCreate"
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/auth/register/{token}": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Status activate",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Activate user by email"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Enter email and Password",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UserForLogin"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User login"
+          },
+          "401": {
+            "description": "Wrong email or password"
+          }
+        }
+      }
+    },
+    "/auth/changePassword": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Change password",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Access token",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/changePassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "change password"
+          },
+          "400": {
+            "description": "wrong password"
+          }
+        }
+      }
+    },
+    "/auth/forgotPassword": {
+      "post": {
+        "tags": ["auth"],
+        "description": "enter email",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/forgotPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Check your email"
+          },
+          "400": {
+            "description": "User not found"
+          }
+        }
+      }
+    },
+    "/auth/forgotPassword/{token}": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Enter new password",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "data",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/setNewPassword"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Accept new password"
+          },
+          "400": {
+            "description": "Wrong password"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["auth"],
+        "description": "Create new tokens pair",
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Refresh is done"
+          }
+        }
+      }
+    }
+
+
+  },
+  "definitions": {
+    "User": {
+      "required": [
+        "email",
+        "password",
+        "username",
+        "age",
+        "gender",
+        "phone"
+      ],
+      "type": "object",
+      "properties": {
+        "_id": {
+          "title": "id",
+          "type": "string",
+          "readOnly": true,
+          "example": "6482f9730a3aa0255467da91"
+        },
+        "username": {
+          "title": "User name",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50,
+          "example": "Bogdan"
+        },
+        "age": {
+          "title": "Age",
+          "type": "number",
+          "minimum": 2,
+          "maximum": 130,
+          "example": 47
+        },
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+          "example": "email@.com"
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        },
+        "gender": {
+          "title": "Gender",
+          "type": "string",
+          "enum": [
+            "male",
+            "female"
+          ]
+        },
+        "phone": {
+          "title": "Phone",
+          "type": "string",
+          "pattern": "^[+]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$",
+          "example": "+380123456789"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string",
+          "readOnly": true,
+          "enum": [
+            "active",
+            "inactive"
+          ]
+        },
+        "photo": {
+          "title": "Photo",
+          "type": "string",
+          "format": "uri"
+        },
+        "createdAt": {
+          "title": "Created",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "title": "Updated",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "UserForCreate": {
+      "required": [
+        "username",
+        "age",
+        "gender",
+        "email",
+        "password",
+        "phone"
+      ],
+      "type": "object",
+      "properties": {
+        "_id": {
+          "title": "id",
+          "type": "string",
+          "readOnly": true,
+          "example": "6482f9730a3aa0255467da91"
+        },
+        "username": {
+          "title": "User name",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50,
+          "example": "Bogdan"
+        },
+        "age": {
+          "title": "Age",
+          "type": "number",
+          "minimum": 2,
+          "maximum": 130,
+          "example": 47
+        },
+        "gender": {
+          "title": "Gender",
+          "type": "string",
+          "enum": [
+            "male",
+            "female"
+          ]
+        },
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+          "example": "email@.com"
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        },
+
+        "phone": {
+          "title": "Phone",
+          "type": "string",
+          "pattern": "^[+]?[0-9]{3}[)]?[-\\s.]?[0-9]{3}[-\\s.]?[0-9]{4,6}$",
+          "example": "+380123456789"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string",
+          "readOnly": true,
+          "enum": [
+            "active",
+            "inactive"
+          ]
+        },
+        "photo": {
+          "title": "Photo",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "UserForUpdate": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "title": "User name",
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 50,
+          "example": "Bogdan"
+        },
+        "age": {
+          "title": "Age",
+          "type": "number",
+          "minimum": 2,
+          "maximum": 130,
+          "example": 47
+        },
+        "gender": {
+          "title": "gender",
+          "type": "string",
+          "enum": ["active", "inactive"]
+        },
+        "photo": {
+          "title": "Photo",
+          "type": "string",
+          "format": "uri"
+        }
+      }
+    },
+    "UserForLogin": {
+      "required": [
+        "email",
+        "password"
+      ],
+      "type": "object",
+      "properties": {
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+          "example": "email@.com"
+        },
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        }
+      }
+    },
+    "changePassword": {
+      "required": [
+        "oldPassword",
+        "newPassword"
+      ],
+      "type": "object",
+      "properties": {
+        "oldPassword": {
+          "title": "oldPassword",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        },
+        "newPassword": {
+          "title": "newPassword",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        }
+      }
+    },
+    "forgotPassword": {
+      "required": [
+        "email"
+      ],
+      "type": "object",
+      "properties": {
+        "email": {
+          "title": "Email",
+          "type": "string",
+          "pattern": "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$",
+          "example": "email@.com"
+        }
+      }
+    },
+    "setNewPassword": {
+      "required": [
+        "password"
+      ],
+      "type": "object",
+      "properties": {
+        "password": {
+          "title": "Password",
+          "type": "string",
+          "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%_*#?&])[A-Za-z\\d@$_!%*#?&]{8,20}$"
+        }
+      }
+    }
+  }
+}
