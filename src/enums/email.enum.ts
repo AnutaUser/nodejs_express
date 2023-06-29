@@ -4,4 +4,5 @@ export enum EEmailActions {
   LOGOUT,
   FORGOT_PASSWORD,
   DELETE,
+  COMEBACK,
 }

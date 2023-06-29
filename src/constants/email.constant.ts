@@ -25,4 +25,9 @@ export const emailConstant = {
     templateName: 'delete',
     subject: 'Sorry, that you leave us',
   },
+
+  [EEmailActions.COMEBACK]: {
+    templateName: 'comeback',
+    subject: 'Great offer',
+  },
 };
