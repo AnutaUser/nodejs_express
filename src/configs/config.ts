@@ -26,4 +26,11 @@ export const configs = {
 
   NODEMAILER_USER: process.env.NODEMAILER_USER || '',
   NODEMAILER_PASS: process.env.NODEMAILER_PASS || '',
+
+  AWS_ACCESS_KEY: process.env.AWS_ACCESS_KEY,
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
+  AWS_S3_REGION: process.env.AWS_S3_REGION,
+  AWS_S3_NAME: process.env.AWS_S3_NAME,
+  AWS_S3_ACL: process.env.AWS_S3_ACL,
+  AWS_S3_URL: process.env.AWS_S3_URL,
 };

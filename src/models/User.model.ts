@@ -39,9 +39,15 @@ const userSchema = new Schema(
     },
     photo: {
       type: String,
+      require: false,
+    },
+    video: {
+      type: String,
+      require: false,
     },
   },
   {
+    versionKey: false,
     timestamps: true,
   }
 );
