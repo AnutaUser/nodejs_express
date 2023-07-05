@@ -1,9 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { UploadedFile } from 'express-fileupload';
+import multer from 'multer';
+import { createReadStream } from 'streamifier';
 
 import { ApiError } from '../errors';
 import { userMapper } from '../mapers';
-import { userService } from '../services';
+import { User } from '../models';
+import { s3Service, userService } from '../services';
 import { IUser } from '../types';
 
 class UserController {
@@ -14,7 +17,12 @@ class UserController {
   ): Promise<Response<IUser[]>> {
     try {
       const users = await userService.findAll();
-      return res.status(200).json(users);
+
+      const usersForResponse = users.map((user) =>
+        userMapper.userForResponse(user)
+      );
+
+      return res.status(200).json(usersForResponse);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
@@ -29,8 +37,9 @@ class UserController {
       const { userId } = req.params;
 
       const userById = await userService.getByUserId(userId);
+      const userForResponse = userMapper.userForResponse(userById);
 
-      return res.status(200).json(userById);
+      return res.status(200).json(userForResponse);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
@@ -45,8 +54,9 @@ class UserController {
       const { userId } = req.params;
 
       const updateUser = await userService.update(userId, req.body);
+      const userForResponse = userMapper.userForResponse(updateUser);
 
-      return res.status(200).json(updateUser);
+      return res.status(200).json(userForResponse);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
@@ -100,6 +110,44 @@ class UserController {
       const userForResponse = userMapper.userForResponse(user);
 
       return res.status(200).json(userForResponse);
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async addVideo(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<any> {
+    try {
+      const { userId } = req.params;
+
+      const upload = multer().single('');
+
+      upload(req, res, async (err) => {
+        if (err) {
+          throw new ApiError(err.message, err.status);
+        }
+        const video = req.files.video as UploadedFile;
+        const stream = createReadStream(video.data);
+
+        const pathToVideo = await s3Service.writeStream(
+          stream,
+          'user',
+          userId,
+          video
+        );
+
+        const user = await User.findByIdAndUpdate(
+          userId,
+          { $set: { video: pathToVideo } },
+          { new: true }
+        );
+        const userForResponse = userMapper.userForResponse(user);
+
+        return res.status(201).json(userForResponse);
+      });
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }

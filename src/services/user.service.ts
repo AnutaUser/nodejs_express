@@ -56,9 +56,11 @@ class UserService {
     try {
       const user = await this.getByIdOrThrow(userId);
 
-      if (user.photo) {
-        await s3Service.deleteFile(user.photo);
+      if (!user.photo) {
+        return user;
       }
+
+      await s3Service.deleteFile(user.photo);
 
       return await User.findByIdAndUpdate(
         userId,

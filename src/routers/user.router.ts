@@ -49,4 +49,11 @@ router.delete(
   userController.deletePhoto
 );
 
+router.post(
+  '/:userId/video',
+  authMiddleware.checkAccessToken,
+  commonMiddleware.isIdValid('userId'),
+  userController.addVideo
+);
+
 export const userRouter = router;

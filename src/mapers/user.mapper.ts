@@ -12,7 +12,7 @@ class UserMapper {
       phone: user.phone,
       status: user.status,
       photo: user.photo ? `${configs.AWS_S3_URL}/${user.photo}` : null,
-      video: user.video ? `` : null,
+      video: user.video ? `${configs.AWS_S3_URL_VIDEO}/${user.video}` : null,
     };
   }
 }
