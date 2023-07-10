@@ -41,16 +41,16 @@ class S3Service {
     return filePath;
   }
 
-  public async deleteFile(filePath: string): Promise<void> {
+  public async deleteFile(filePath: string, bucketName: string): Promise<void> {
     await this.client.send(
       new DeleteObjectCommand({
-        Bucket: configs.AWS_S3_NAME_PHOTO,
+        Bucket: bucketName,
         Key: filePath,
       })
     );
   }
 
-  public async writeStream(
+  public async uploadVideo(
     stream: Readable,
     itemType: string,
     itemId: string,

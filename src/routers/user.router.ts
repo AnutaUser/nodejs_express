@@ -56,4 +56,11 @@ router.post(
   userController.addVideo
 );
 
+router.delete(
+  '/:userId/video',
+  authMiddleware.checkAccessToken,
+  commonMiddleware.isIdValid('userId'),
+  userController.deleteVideo
+);
+
 export const userRouter = router;

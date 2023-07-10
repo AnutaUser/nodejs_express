@@ -1,5 +1,6 @@
 import { UploadedFile } from 'express-fileupload';
 
+import { configs } from '../configs';
 import { ApiError } from '../errors';
 import { User } from '../models';
 import { IUser } from '../types';
@@ -37,7 +38,7 @@ class UserService {
       const user = await this.getByIdOrThrow(userId);
 
       if (user.photo) {
-        await s3Service.deleteFile(user.photo);
+        await s3Service.deleteFile(user.photo, configs.AWS_S3_NAME_PHOTO);
       }
 
       const userPhoto = await s3Service.uploadFile(photo, 'user', userId);
@@ -52,7 +53,7 @@ class UserService {
     }
   }
 
-  public async deleteUserPhoto(userId: string): Promise<IUser> {
+  public async deletePhoto(userId: string): Promise<IUser> {
     try {
       const user = await this.getByIdOrThrow(userId);
 
@@ -60,11 +61,31 @@ class UserService {
         return user;
       }
 
-      await s3Service.deleteFile(user.photo);
+      await s3Service.deleteFile(user.photo, configs.AWS_S3_NAME_PHOTO);
 
       return await User.findByIdAndUpdate(
         userId,
         { $unset: { photo: user.photo } },
+        { new: true }
+      );
+    } catch (e) {
+      throw new ApiError(e.message, e.status);
+    }
+  }
+
+  public async deleteVideo(userId: string): Promise<IUser> {
+    try {
+      const user = await this.getByIdOrThrow(userId);
+
+      if (!user.video) {
+        return user;
+      }
+
+      await s3Service.deleteFile(user.video, configs.AWS_S3_NAME_VIDEO);
+
+      return await User.findByIdAndUpdate(
+        userId,
+        { $unset: { video: user.video } },
         { new: true }
       );
     } catch (e) {

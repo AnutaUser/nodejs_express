@@ -3,6 +3,7 @@ import { UploadedFile } from 'express-fileupload';
 import multer from 'multer';
 import { createReadStream } from 'streamifier';
 
+import { configs } from '../configs';
 import { ApiError } from '../errors';
 import { userMapper } from '../mapers';
 import { User } from '../models';
@@ -85,6 +86,7 @@ class UserController {
   ): Promise<Response<IUser>> {
     try {
       const { userId } = req.params;
+
       const photo = req.files.photo as UploadedFile;
 
       const user = await userService.addPhoto(userId, photo);
@@ -105,7 +107,7 @@ class UserController {
     try {
       const { userId } = req.params;
 
-      const user = await userService.deleteUserPhoto(userId);
+      const user = await userService.deletePhoto(userId);
 
       const userForResponse = userMapper.userForResponse(user);
 
@@ -123,16 +125,24 @@ class UserController {
     try {
       const { userId } = req.params;
 
+      const userFromDB = await User.findById(userId);
+
+      if (userFromDB.video) {
+        await s3Service.deleteFile(userFromDB.video, configs.AWS_S3_NAME_VIDEO);
+      }
+
       const upload = multer().single('');
 
       upload(req, res, async (err) => {
         if (err) {
-          throw new ApiError(err.message, err.status);
+          throw new ApiError('Download error', err.status);
         }
+
         const video = req.files.video as UploadedFile;
+
         const stream = createReadStream(video.data);
 
-        const pathToVideo = await s3Service.writeStream(
+        const pathToVideo = await s3Service.uploadVideo(
           stream,
           'user',
           userId,
@@ -144,10 +154,29 @@ class UserController {
           { $set: { video: pathToVideo } },
           { new: true }
         );
+
         const userForResponse = userMapper.userForResponse(user);
 
         return res.status(201).json(userForResponse);
       });
+    } catch (e) {
+      next(new ApiError(e.message, e.status));
+    }
+  }
+
+  public async deleteVideo(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response<IUser>> {
+    try {
+      const { userId } = req.params;
+
+      const user = await userService.deleteVideo(userId);
+
+      const userForResponse = userMapper.userForResponse(user);
+
+      return res.status(200).json(userForResponse);
     } catch (e) {
       next(new ApiError(e.message, e.status));
     }
